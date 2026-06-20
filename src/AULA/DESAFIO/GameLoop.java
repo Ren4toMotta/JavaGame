@@ -13,8 +13,10 @@ public class GameLoop extends Thread implements Runnable, ActionListener{
 	private Painel CenaDoJogo;
 	private EscutadorTeclado ET;
 	private int desdeUltimoTiro = 0;
-	private static final int COOLDOWN_TIRO = 12;
+	private static final int COOLDOWN_PISTOLA = 12;
+	private static final int COOLDOWN_SHOTGUN = 22;
 	private String cenaAnterior = null;
+	private boolean atiraCimaAnt, atiraBaixoAnt;
 
 
 	public GameLoop(Painel cenaDoJogo, EscutadorTeclado eT) {
@@ -56,8 +58,33 @@ public class GameLoop extends Thread implements Runnable, ActionListener{
 	}
 
 	private void tick() {
+		if (CenaDoJogo.intro != null && CenaDoJogo.intro.estaAtiva()) {
+			CenaDoJogo.intro.tick();
+			if (ET.espaco && !ET.espacoConsumido) {
+				CenaDoJogo.intro.avancar();
+				ET.espacoConsumido = true;
+			}
+			return;
+		}
 		if (CenaDoJogo.gameOver) {
 			if (ET.reiniciar) reiniciar();
+			return;
+		}
+
+		// dialogo do NPC: pausa o resto do jogo
+		if (CenaDoJogo.dialogo.estaAberto()) {
+			CenaDoJogo.dialogo.tick();
+			// navegacao no menu (borda de subida de cima/baixo)
+			if (ET.atiraCima && !atiraCimaAnt) CenaDoJogo.dialogo.mover(-1);
+			if (ET.atiraBaixo && !atiraBaixoAnt) CenaDoJogo.dialogo.mover(1);
+			if (ET.espaco && !ET.espacoConsumido) {
+				CenaDoJogo.dialogo.confirmar(CenaDoJogo.Jogador);
+				ET.espacoConsumido = true;
+			}
+			atiraCimaAnt = ET.atiraCima;
+			atiraBaixoAnt = ET.atiraBaixo;
+			// ainda anima NPC
+			if (CenaDoJogo.cenario.npcTD != null) CenaDoJogo.cenario.npcTD.tick();
 			return;
 		}
 
@@ -86,6 +113,30 @@ public class GameLoop extends Thread implements Runnable, ActionListener{
 
 		CenaDoJogo.cenario.pecaDoCenario.atualizaAnimacaoAgua();
 
+		// animacao do NPC e abertura de dialogo
+		if (CenaDoJogo.cenario.npcTD != null) {
+			CenaDoJogo.cenario.npcTD.tick();
+			if ("TD".equals(CenaDoJogo.cenario.getCenaValida())
+					&& CenaDoJogo.cenario.zumbisVivosNa("TD") == 0
+					&& CenaDoJogo.cenario.npcTD.playerEstaProximo(CenaDoJogo.Jogador)
+					&& ET.espaco && !ET.espacoConsumido) {
+				CenaDoJogo.dialogo.abrir();
+				ET.espacoConsumido = true;
+			}
+		}
+		atiraCimaAnt = ET.atiraCima;
+		atiraBaixoAnt = ET.atiraBaixo;
+
+		// troca de arma
+		if (ET.trocaPraPistola) {
+			CenaDoJogo.Jogador.armaAtual = 0;
+			ET.trocaPraPistola = false;
+		}
+		if (ET.trocaPraShotgun) {
+			if (CenaDoJogo.Jogador.temShotgun) CenaDoJogo.Jogador.armaAtual = 1;
+			ET.trocaPraShotgun = false;
+		}
+
 		// disparar
 		desdeUltimoTiro++;
 		int dx = 0, dy = 0;
@@ -93,12 +144,26 @@ public class GameLoop extends Thread implements Runnable, ActionListener{
 		if (ET.atiraDir)  dx += 1;
 		if (ET.atiraCima) dy -= 1;
 		if (ET.atiraBaixo)dy += 1;
-		if ((dx != 0 || dy != 0) && desdeUltimoTiro >= COOLDOWN_TIRO) {
-			Tiro t = new Tiro(CenaDoJogo.Jogador.getCentroX(),
-							  CenaDoJogo.Jogador.getCentroY(), dx, dy);
+		int cooldown = (CenaDoJogo.Jogador.armaAtual == 1) ? COOLDOWN_SHOTGUN : COOLDOWN_PISTOLA;
+		if ((dx != 0 || dy != 0) && desdeUltimoTiro >= cooldown) {
+			int cx = CenaDoJogo.Jogador.getCentroX();
+			int cy = CenaDoJogo.Jogador.getCentroY();
 			synchronized (CenaDoJogo.tiros) {
-				CenaDoJogo.tiros.add(t);
+				if (CenaDoJogo.Jogador.armaAtual == 1) {
+					// shotgun: 3 projeteis em cone (~30 graus)
+					double base = Math.atan2(dy, dx);
+					double[] offsets = { -Math.PI / 12, 0, Math.PI / 12 };
+					for (double off : offsets) {
+						double ang = base + off;
+						int tdx = (int) Math.round(Math.cos(ang) * 1000);
+						int tdy = (int) Math.round(Math.sin(ang) * 1000);
+						CenaDoJogo.tiros.add(new Tiro(cx, cy, tdx, tdy));
+					}
+				} else {
+					CenaDoJogo.tiros.add(new Tiro(cx, cy, dx, dy));
+				}
 			}
+			Som.tocarTiro();
 			desdeUltimoTiro = 0;
 		}
 
@@ -127,6 +192,7 @@ public class GameLoop extends Thread implements Runnable, ActionListener{
 		}
 
 		// atualizar zumbis + colisao com player
+		java.util.ArrayList<Dinheiro> moedas = CenaDoJogo.cenario.getMoedasAtuais();
 		synchronized (zumbis) {
 			for (int i = 0; i < zumbis.size(); i++) {
 				Zumbi z = zumbis.get(i);
@@ -136,7 +202,31 @@ public class GameLoop extends Thread implements Runnable, ActionListener{
 				}
 			}
 			for (int i = zumbis.size() - 1; i >= 0; i--) {
-				if (!zumbis.get(i).vivo) zumbis.remove(i);
+				if (!zumbis.get(i).vivo) {
+					Zumbi morto = zumbis.get(i);
+					int cx = morto.posX + Zumbi.LARG / 2;
+					int cy = morto.posY + Zumbi.ALTU / 2;
+					synchronized (moedas) {
+						moedas.add(new Dinheiro(cx, cy));
+					}
+					zumbis.remove(i);
+				}
+			}
+		}
+
+		// atualizar moedas + coleta pelo player
+		synchronized (moedas) {
+			for (int i = 0; i < moedas.size(); i++) {
+				Dinheiro m = moedas.get(i);
+				m.tick();
+				if (!m.coletada && m.areaColisao.intersects(CenaDoJogo.Jogador.AreaColisao)) {
+					CenaDoJogo.Jogador.Inv.adicionarDinheiro(m.valor);
+					m.coletada = true;
+					Som.tocarMoeda();
+				}
+			}
+			for (int i = moedas.size() - 1; i >= 0; i--) {
+				if (moedas.get(i).coletada) moedas.remove(i);
 			}
 		}
 
