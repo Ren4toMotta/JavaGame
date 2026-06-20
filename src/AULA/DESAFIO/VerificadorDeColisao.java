@@ -1,5 +1,7 @@
 package AULA.DESAFIO;
 
+import java.awt.Rectangle;
+
 public class VerificadorDeColisao {
 	//atributos privados
 	private int colEsqX;
@@ -7,10 +9,32 @@ public class VerificadorDeColisao {
 	private int rowTopoY;
 	private int rowBaseY;
 	private boolean colidiu;
-	
+
 	//construtor
 	public VerificadorDeColisao() {
 			//deve ficar vazio
+	}
+
+	// Verifica se um retangulo arbitrario (ex.: tiro ou zumbi) toca algum tile colidivel.
+	// Checa os 4 cantos contra Tiles.isColisao() — mesma logica usada pro player.
+	public static boolean colideComTileEm(Rectangle area, tileMap cena) {
+		if (area == null || cena == null) return false;
+		int colEsq = area.x / 48;
+		int colDir = (area.x + area.width) / 48;
+		int rowTop = area.y / 48;
+		int rowBas = (area.y + area.height) / 48;
+
+		int rows = cena.cenarioValido.length;
+		int cols = cena.cenarioValido[0].length;
+		if (colEsq < 0 || colDir >= cols || rowTop < 0 || rowBas >= rows) return true;
+
+		int[] linhas = {rowTop, rowTop, rowBas, rowBas};
+		int[] colunas = {colEsq, colDir, colEsq, colDir};
+		for (int i = 0; i < 4; i++) {
+			cena.pecaDoCenario.carregaPecaDaMatriz(cena.cenarioValido[linhas[i]][colunas[i]]);
+			if (cena.pecaDoCenario.isColisao()) return true;
+		}
+		return false;
 	}
 	
 	private void verificaColetaOuPorta(Player Jogador, tileMap CenaDoJogo, int linha, int coluna) {

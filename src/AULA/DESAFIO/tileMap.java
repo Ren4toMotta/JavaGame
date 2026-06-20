@@ -1,11 +1,15 @@
 package AULA.DESAFIO;
 
 import java.awt.Graphics2D;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.Map;
 
 public class tileMap {
 	Tiles pecaDoCenario;
 	int [][] cenarioValido;
 	private String cenaValida;
+	private Map<String, ArrayList<Zumbi>> zumbisPorCena;
 	int [][] cenarioTopEsq	={	{6,6,6,6,6,6,6,6,6,6,6,6,6,6,6,6},// cenario 1
 								{3,1,1,1,1,1,1,1,1,1,1,1,1,1,1,0},
 								{3,1,1,1,1,1,1,1,1,0,1,1,1,1,1,0},
@@ -81,6 +85,18 @@ public class tileMap {
 		this.cenarioValido = this.cenarioTopEsq;
 		this.setCenaValida("TE");
 		this.pecaDoCenario = new Tiles();
+		this.resetarZumbis();
+	}
+
+	public void resetarZumbis() {
+		this.zumbisPorCena = new HashMap<>();
+		for (String chave : new String[]{"TE", "MC", "TD", "BD", "MB", "BE"}) {
+			this.zumbisPorCena.put(chave, SpawnZumbis.criaZumbisDaCena(chave));
+		}
+	}
+
+	public ArrayList<Zumbi> getZumbisAtuais() {
+		return this.zumbisPorCena.get(this.cenaValida);
 	}
 	
 	public void desenhar(Graphics2D d2) {

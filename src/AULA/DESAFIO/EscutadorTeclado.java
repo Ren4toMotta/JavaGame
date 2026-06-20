@@ -5,7 +5,9 @@ import java.awt.event.KeyListener;
 
 public class EscutadorTeclado implements KeyListener{
 	public boolean movePraBaixo, movePraCima, movePraEsq, movePraDir;
-	
+	public boolean atiraCima, atiraBaixo, atiraEsq, atiraDir;
+	public boolean reiniciar;
+
 	@Override
 	public void keyTyped(KeyEvent e) {
 		// NÃO SERÁ UTILIZADA, MAS NÃO PODE SER APAGADA
@@ -15,48 +17,73 @@ public class EscutadorTeclado implements KeyListener{
 	public void keyPressed(KeyEvent e) {
 		int numTecla = e.getKeyCode();
 		switch (numTecla) {
-		case 37: //esquerda
+		case KeyEvent.VK_A:
 			this.movePraEsq = true;
 			break;
-		case 38: //cima
-			this.movePraCima= true;
+		case KeyEvent.VK_W:
+			this.movePraCima = true;
 			break;
-		case 39: //direita
+		case KeyEvent.VK_D:
 			this.movePraDir = true;
-			break;			
-		case 40: //baixo
+			break;
+		case KeyEvent.VK_S:
 			this.movePraBaixo = true;
 			break;
-		case 27:// esc
+		case KeyEvent.VK_LEFT:
+			this.atiraEsq = true;
+			break;
+		case KeyEvent.VK_UP:
+			this.atiraCima = true;
+			break;
+		case KeyEvent.VK_RIGHT:
+			this.atiraDir = true;
+			break;
+		case KeyEvent.VK_DOWN:
+			this.atiraBaixo = true;
+			break;
+		case KeyEvent.VK_R:
+			this.reiniciar = true;
+			break;
+		case KeyEvent.VK_ESCAPE:
 			System.exit(0);
 		default:
-			System.out.println("Tecla sem Efeito");
 			break;
 		}
-		
 	}
 
 	@Override
 	public void keyReleased(KeyEvent e) {
 		int numTecla = e.getKeyCode();
 		switch (numTecla) {
-		case 37: //esquerda
+		case KeyEvent.VK_A:
 			this.movePraEsq = false;
 			break;
-		case 38: //cima
-			this.movePraCima= false;
+		case KeyEvent.VK_W:
+			this.movePraCima = false;
 			break;
-		case 39: //direita
+		case KeyEvent.VK_D:
 			this.movePraDir = false;
-			break;			
-		case 40: //baixo
+			break;
+		case KeyEvent.VK_S:
 			this.movePraBaixo = false;
 			break;
+		case KeyEvent.VK_LEFT:
+			this.atiraEsq = false;
+			break;
+		case KeyEvent.VK_UP:
+			this.atiraCima = false;
+			break;
+		case KeyEvent.VK_RIGHT:
+			this.atiraDir = false;
+			break;
+		case KeyEvent.VK_DOWN:
+			this.atiraBaixo = false;
+			break;
+		case KeyEvent.VK_R:
+			this.reiniciar = false;
+			break;
 		default:
-			System.out.println("Tecla sem Efeito");
 			break;
 		}
-		
 	}
-
 }
