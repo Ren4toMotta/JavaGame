@@ -6,7 +6,10 @@ import java.awt.Font;
 import java.awt.FontMetrics;
 import java.awt.Graphics;
 import java.awt.Graphics2D;
+import java.awt.Image;
+import java.awt.RenderingHints;
 import java.util.ArrayList;
+import javax.swing.ImageIcon;
 import javax.swing.JPanel;
 
 public class Painel extends JPanel{
@@ -20,6 +23,8 @@ public class Painel extends JPanel{
 	ArrayList<Tiro> tiros = new ArrayList<>();
 	boolean gameOver = false;
 	private Painel painelCentro;
+	private Image imgHealth, imgHealthPart;
+	private Image imgGunSlot, imgEmptySlot;
 
 	public Painel(String Posicao) {
 		this.Posicao = Posicao;
@@ -35,8 +40,12 @@ public class Painel extends JPanel{
 			SL = new SpriteLoop(this, ET);
 			SL.start();
 		} else {
-			this.setBackground(Color.yellow);
-			this.setPreferredSize(new Dimension(768,100));
+			this.setBackground(Color.BLACK);
+			this.setPreferredSize(new Dimension(768,110));
+			this.imgHealth = new ImageIcon("res/UI/HEALTH.png").getImage();
+			this.imgHealthPart = new ImageIcon("res/UI/HEALTH_PART.png").getImage();
+			this.imgGunSlot = new ImageIcon("res/UI/GUN_SLOT.png").getImage();
+			this.imgEmptySlot = new ImageIcon("res/UI/EMPTY_SLOT.png").getImage();
 		}
 	}
 	public Painel(String Posicao, Painel centro) {
@@ -60,27 +69,58 @@ public class Painel extends JPanel{
 			if (gameOver) desenhaGameOver(D2);
 		}
 		else if(this.Posicao.equals("Sul") && painelCentro != null) {
-			int chaves = painelCentro.Jogador.Inv.getQtdChaves();
-
-			D2.setColor(Color.BLACK);
-			D2.setFont(new Font("Arial", Font.BOLD,24));
-			D2.drawString("Chaves: "+chaves,20 ,55);
-
-			desenhaBarraDeVida(D2, painelCentro.Jogador);
+			D2.setRenderingHint(RenderingHints.KEY_INTERPOLATION,
+					RenderingHints.VALUE_INTERPOLATION_NEAREST_NEIGHBOR);
+			desenhaHUDEsquerda(D2, painelCentro.Jogador);
+			desenhaSlots(D2);
 		}
 	}
 
-	private void desenhaBarraDeVida(Graphics2D d2, Player p) {
-		int x = 240, y = 35, larg = 300, alt = 30;
-		d2.setColor(Color.DARK_GRAY);
-		d2.fillRect(x, y, larg, alt);
-		double frac = Math.max(0.0, (double) p.vida / Player.VIDA_MAX);
-		d2.setColor(frac > 0.5 ? new Color(40, 180, 40) : frac > 0.25 ? Color.ORANGE : Color.RED);
-		d2.fillRect(x, y, (int)(larg * frac), alt);
-		d2.setColor(Color.BLACK);
-		d2.drawRect(x, y, larg, alt);
-		d2.setFont(new Font("Arial", Font.BOLD, 18));
-		d2.drawString("HP " + p.vida + "/" + Player.VIDA_MAX, x + larg + 12, y + 22);
+	private void desenhaHUDEsquerda(Graphics2D d2, Player p) {
+		int margem = 24;
+
+		d2.setColor(Color.WHITE);
+		d2.setFont(new Font("Monospaced", Font.BOLD, 22));
+		d2.drawString("CHAVES: " + p.Inv.getQtdChaves(), margem, 32);
+
+		// HEALTH sprite (40x6 -> 160x24, escala 4x)
+		int yHealth = 52;
+		int largHealth = 160, altHealth = 24;
+		if (imgHealth != null) {
+			d2.drawImage(imgHealth, margem, yHealth, largHealth, altHealth, null);
+		}
+
+		// HEALTH_PART (4x6 -> 16x24, escala 4x) repetido por ponto de vida
+		int xParte = margem + largHealth + 16;
+		int largParte = 16, altParte = 24;
+		int gap = 6;
+		for (int i = 0; i < p.vida; i++) {
+			if (imgHealthPart != null) {
+				d2.drawImage(imgHealthPart,
+						xParte + i * (largParte + gap), yHealth,
+						largParte, altParte, null);
+			}
+		}
+	}
+
+	private void desenhaSlots(Graphics2D d2) {
+		// SLOT (32x22 -> 96x66, escala 3x)
+		int largSlot = 96, altSlot = 66;
+		int gap = 10;
+		int qtdEmpty = 3;
+		int totalSlots = 1 + qtdEmpty;
+		int largTotal = totalSlots * largSlot + (totalSlots - 1) * gap;
+		int x = getWidth() - largTotal - 24;
+		int y = (getHeight() - altSlot) / 2;
+		if (imgGunSlot != null) {
+			d2.drawImage(imgGunSlot, x, y, largSlot, altSlot, null);
+		}
+		for (int i = 0; i < qtdEmpty; i++) {
+			int sx = x + (i + 1) * (largSlot + gap);
+			if (imgEmptySlot != null) {
+				d2.drawImage(imgEmptySlot, sx, y, largSlot, altSlot, null);
+			}
+		}
 	}
 
 	private void desenhaGameOver(Graphics2D d2) {

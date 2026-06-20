@@ -11,11 +11,13 @@ public class Tiles {
 	private Image imgAtual;
 	private Image imgGrass, imgSand, imgWall, imgWall2;
 	private Image imgWhite, imgGray;
+	private Image imgCarDestroyed, imgCarGray, imgCarOrange;
 	private Image[] imgWater = new Image[3];
-	private int frameAgua = 0;              
-    private int contadorAgua = 0;           
+	private int frameAgua = 0;
+    private int contadorAgua = 0;
     private final int VELOCIDADE_AGUA = 35;
 	private boolean colisao;
+	private boolean ehCarro;
 
 	
 	public Tiles() {
@@ -25,7 +27,27 @@ public class Tiles {
 	public void desenhaTile(Graphics2D d2, int linha, int coluna) {
 		this.posX = coluna * this.largura;
 		this.posY = linha * this.altura;
-		d2.drawImage(this.imgAtual, this.posX, this.posY, this.largura, this.altura, null);		
+		if (this.ehCarro) {
+			// na primeira passada do tileMap so desenha o chao; carros sao desenhados depois
+			d2.drawImage(this.imgSand, this.posX, this.posY, this.largura, this.altura, null);
+		} else {
+			d2.drawImage(this.imgAtual, this.posX, this.posY, this.largura, this.altura, null);
+		}
+	}
+
+	public void desenhaCarro(Graphics2D d2, int linha, int coluna, int valor) {
+		Image img;
+		switch (valor) {
+			case 7: img = this.imgCarDestroyed; break;
+			case 8: img = this.imgCarGray; break;
+			case 9: img = this.imgCarOrange; break;
+			default: return;
+		}
+		// 33x18 -> 72x40 (escala ~2.2x), centralizado no tile, com overflow lateral
+		int largCarro = 72, altCarro = 40;
+		int cx = coluna * this.largura + this.largura / 2;
+		int cy = linha * this.altura + this.altura / 2;
+		d2.drawImage(img, cx - largCarro / 2, cy - altCarro / 2, largCarro, altCarro, null);
 	}
 	
 	private void carregaImagemTile() {
@@ -48,7 +70,10 @@ public class Tiles {
 			this.imgWater[i] = new ImageIcon
 			("res/TERRAIN/water"+(i+1)+".png").getImage();
 		}
-		
+
+		this.imgCarDestroyed = new ImageIcon("res/TERRAIN/BROKEN_CARS/DESTROYED_CAR.png").getImage();
+		this.imgCarGray      = new ImageIcon("res/TERRAIN/BROKEN_CARS/GRAY_CAR.png").getImage();
+		this.imgCarOrange    = new ImageIcon("res/TERRAIN/BROKEN_CARS/ORANGE_CAR.png").getImage();
 	}
 	
 	public void atualizaAnimacaoAgua() {
@@ -62,6 +87,7 @@ public class Tiles {
     }
 	
 	public void carregaPecaDaMatriz(int valorDaPeca) {
+		this.ehCarro = false;
 		if (valorDaPeca == 0) {
 			this.imgAtual = this.imgWall;
 			this.colisao = true;
@@ -89,6 +115,21 @@ public class Tiles {
 		if(valorDaPeca == 6) {
 			this.imgAtual = this.imgWall2;
 			this.colisao = true;
+		}
+		if (valorDaPeca == 7) {
+			this.imgAtual = this.imgCarDestroyed;
+			this.colisao = true;
+			this.ehCarro = true;
+		}
+		if (valorDaPeca == 8) {
+			this.imgAtual = this.imgCarGray;
+			this.colisao = true;
+			this.ehCarro = true;
+		}
+		if (valorDaPeca == 9) {
+			this.imgAtual = this.imgCarOrange;
+			this.colisao = true;
+			this.ehCarro = true;
 		}
 		
 		//if (this.colisao == true) 	this.imgAtual = this.imgGray;

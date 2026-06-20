@@ -2,6 +2,7 @@ package AULA.DESAFIO;
 import java.awt.Graphics2D;
 import java.awt.Image;
 import java.awt.Rectangle;
+import java.awt.geom.AffineTransform;
 
 import javax.swing.ImageIcon;
 
@@ -17,6 +18,8 @@ public class Player{
 	private int Larg, Altu;
 	public int passo = 5;
 	private boolean olhandoEsquerda = false;
+	private String direcaoAtual = "down";
+	private Image imgGun;
 	public Inventario Inv = new Inventario();
 
 	public static final int VIDA_MAX = 5;
@@ -41,6 +44,7 @@ public class Player{
 			this.imgPlayerUp[i] = new ImageIcon("res/PCAF/up" + (i+1) + ".png").getImage();
 		}
 		this.imagemPlayer = this.imgPlayerDown[this.frameJogador];
+		this.imgGun = new ImageIcon("res/PLAYERS/GUN.png").getImage();
 	}
 
 	public void desenhaJogador(Graphics2D d2) {
@@ -51,6 +55,39 @@ public class Player{
 	    } else {
 	        d2.drawImage(imagemPlayer, posX, posY, Larg, Altu, null);
 	    }
+		desenhaArma(d2);
+	}
+
+	private void desenhaArma(Graphics2D d2) {
+		if (imgGun == null) return;
+		int largArma = 24, altArma = 15;
+		double pivotX, pivotY, angulo;
+		boolean espelharH = false;
+		switch (direcaoAtual) {
+			case "up":
+				pivotX = posX + 32; pivotY = posY + 2; angulo = -Math.PI / 2;
+				break;
+			case "down":
+				pivotX = posX + 16; pivotY = posY + 50; angulo = Math.PI / 2;
+				break;
+			case "right":
+			default:
+				if (olhandoEsquerda) {
+					pivotX = posX - 4; pivotY = posY + 30; angulo = 0; espelharH = true;
+				} else {
+					pivotX = posX + 52; pivotY = posY + 30; angulo = 0;
+				}
+				break;
+		}
+		AffineTransform original = d2.getTransform();
+		AffineTransform tx = new AffineTransform();
+		tx.translate(pivotX, pivotY);
+		tx.rotate(angulo);
+		if (espelharH) tx.scale(-1, 1);
+		tx.translate(-largArma / 2.0, -altArma / 2.0);
+		d2.setTransform(tx);
+		d2.drawImage(imgGun, 0, 0, largArma, altArma, null);
+		d2.setTransform(original);
 	}
 
 	public void atualizaPosicaoJogador(boolean ME, boolean MC, boolean MD, boolean MB) {
@@ -67,6 +104,7 @@ public class Player{
 		this.frameJogador++;
 		if (moveEsq) {
 			olhandoEsquerda = true;
+			direcaoAtual = "right";
 			if (frameJogador >= this.imgPlayerRight.length)
 	            frameJogador = 0;
 	        this.imagemPlayer = this.imgPlayerRight[frameJogador];
@@ -74,18 +112,21 @@ public class Player{
 		}
 		if (moveDir) {
 			olhandoEsquerda = false;
+			direcaoAtual = "right";
 			if (frameJogador >= this.imgPlayerRight.length)
 			frameJogador = 0;
 
 			this.imagemPlayer = this.imgPlayerRight[frameJogador];
 		}
 		if (moveCima)	{
+			direcaoAtual = "up";
 			if (frameJogador >= this.imgPlayerUp.length)
 			frameJogador = 0;
 
 			this.imagemPlayer = this.imgPlayerUp[frameJogador];
 		}
 		if (moveBaixo)	{
+			direcaoAtual = "down";
 			if (frameJogador >= this.imgPlayerDown.length)
 			frameJogador = 0;
 
