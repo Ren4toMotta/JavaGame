@@ -1,5 +1,6 @@
 package AULA.DESAFIO;
 import java.awt.AlphaComposite;
+import java.awt.BasicStroke;
 import java.awt.Color;
 import java.awt.Dimension;
 import java.awt.Font;
@@ -22,9 +23,11 @@ public class Painel extends JPanel{
 	tileMap cenario;
 	ArrayList<Tiro> tiros = new ArrayList<>();
 	boolean gameOver = false;
+	Introducao intro = new Introducao();
+	Dialogo dialogo = new Dialogo();
 	private Painel painelCentro;
 	private Image imgHealth, imgHealthPart;
-	private Image imgGunSlot, imgEmptySlot;
+	private Image imgGunSlot, imgEmptySlot, imgShotgunSlot;
 
 	public Painel(String Posicao) {
 		this.Posicao = Posicao;
@@ -46,6 +49,7 @@ public class Painel extends JPanel{
 			this.imgHealthPart = new ImageIcon("res/UI/HEALTH_PART.png").getImage();
 			this.imgGunSlot = new ImageIcon("res/UI/GUN_SLOT.png").getImage();
 			this.imgEmptySlot = new ImageIcon("res/UI/EMPTY_SLOT.png").getImage();
+			this.imgShotgunSlot = new ImageIcon("res/UI/SHOTGUN_SLOT.png").getImage();
 		}
 	}
 	public Painel(String Posicao, Painel centro) {
@@ -57,15 +61,38 @@ public class Painel extends JPanel{
 		D2.setColor(this.getBackground());
 		D2.fillRect(0, 0, this.getWidth(), this.getHeight());
 		if (this.Posicao.equals("Centro")) {
+			if (intro != null && intro.estaAtiva()) {
+				intro.desenhar(D2, getWidth(), getHeight());
+				return;
+			}
 			this.cenario.desenhar(D2);
+			ArrayList<Dinheiro> ms = this.cenario.getMoedasAtuais();
+			synchronized (ms) {
+				for (int i = 0; i < ms.size(); i++) ms.get(i).desenhar(D2);
+			}
 			ArrayList<Zumbi> zs = this.cenario.getZumbisAtuais();
 			synchronized (zs) {
 				for (int i = 0; i < zs.size(); i++) zs.get(i).desenhar(D2);
+			}
+			if ("TD".equals(cenario.getCenaValida()) && cenario.npcTD != null) {
+				cenario.npcTD.desenhar(D2);
+				if (cenario.npcTD.playerEstaProximo(Jogador) && !dialogo.estaAberto()) {
+					int vivos = cenario.zumbisVivosNa("TD");
+					String dica = vivos == 0
+							? "[ESPACO] conversar"
+							: "Faltam " + vivos + " zumbis aqui";
+					desenhaDicaInteracao(D2,
+							cenario.npcTD.posX + NPC.LARG / 2,
+							cenario.npcTD.posY - 6,
+							dica,
+							vivos == 0);
+				}
 			}
 			Jogador.desenhaJogador(D2);
 			synchronized (tiros) {
 				for (int i = 0; i < tiros.size(); i++) tiros.get(i).desenhar(D2);
 			}
+			if (dialogo.estaAberto()) dialogo.desenharComJogador(D2, getWidth(), getHeight(), Jogador);
 			if (gameOver) desenhaGameOver(D2);
 		}
 		else if(this.Posicao.equals("Sul") && painelCentro != null) {
@@ -80,20 +107,23 @@ public class Painel extends JPanel{
 		int margem = 24;
 
 		d2.setColor(Color.WHITE);
-		d2.setFont(new Font("Monospaced", Font.BOLD, 22));
-		d2.drawString("CHAVES: " + p.Inv.getQtdChaves(), margem, 32);
+		d2.setFont(new Font("Monospaced", Font.BOLD, 18));
+		d2.drawString("CHAVES: " + p.Inv.getQtdChaves(), margem, 26);
+		d2.setColor(new Color(120, 220, 120));
+		d2.drawString("$ " + p.Inv.getDinheiro(), margem, 50);
+		d2.setColor(Color.WHITE);
 
-		// HEALTH sprite (40x6 -> 160x24, escala 4x)
-		int yHealth = 52;
-		int largHealth = 160, altHealth = 24;
+		// HEALTH sprite (40x6 -> 120x18, escala 3x)
+		int yHealth = 76;
+		int largHealth = 120, altHealth = 18;
 		if (imgHealth != null) {
 			d2.drawImage(imgHealth, margem, yHealth, largHealth, altHealth, null);
 		}
 
-		// HEALTH_PART (4x6 -> 16x24, escala 4x) repetido por ponto de vida
-		int xParte = margem + largHealth + 16;
-		int largParte = 16, altParte = 24;
-		int gap = 6;
+		// HEALTH_PART (4x6 -> 12x18) repetido por ponto de vida
+		int xParte = margem + largHealth + 10;
+		int largParte = 12, altParte = 18;
+		int gap = 4;
 		for (int i = 0; i < p.vida; i++) {
 			if (imgHealthPart != null) {
 				d2.drawImage(imgHealthPart,
@@ -104,23 +134,44 @@ public class Painel extends JPanel{
 	}
 
 	private void desenhaSlots(Graphics2D d2) {
-		// SLOT (32x22 -> 96x66, escala 3x)
 		int largSlot = 96, altSlot = 66;
 		int gap = 10;
-		int qtdEmpty = 3;
-		int totalSlots = 1 + qtdEmpty;
+		int totalSlots = 4;
 		int largTotal = totalSlots * largSlot + (totalSlots - 1) * gap;
 		int x = getWidth() - largTotal - 24;
 		int y = (getHeight() - altSlot) / 2;
-		if (imgGunSlot != null) {
-			d2.drawImage(imgGunSlot, x, y, largSlot, altSlot, null);
-		}
-		for (int i = 0; i < qtdEmpty; i++) {
-			int sx = x + (i + 1) * (largSlot + gap);
-			if (imgEmptySlot != null) {
-				d2.drawImage(imgEmptySlot, sx, y, largSlot, altSlot, null);
+
+		Image[] slots = new Image[4];
+		slots[0] = imgGunSlot;
+		slots[1] = (painelCentro != null && painelCentro.Jogador.temShotgun) ? imgShotgunSlot : imgEmptySlot;
+		slots[2] = imgEmptySlot;
+		slots[3] = imgEmptySlot;
+
+		int armaSelecionada = (painelCentro != null) ? painelCentro.Jogador.armaAtual : 0;
+
+		for (int i = 0; i < totalSlots; i++) {
+			int sx = x + i * (largSlot + gap);
+			if (slots[i] != null) d2.drawImage(slots[i], sx, y, largSlot, altSlot, null);
+			if (i == armaSelecionada) {
+				d2.setColor(new Color(255, 220, 80));
+				d2.setStroke(new BasicStroke(3));
+				d2.drawRoundRect(sx - 2, y - 2, largSlot + 4, altSlot + 4, 6, 6);
+				d2.setStroke(new BasicStroke(1));
 			}
+			d2.setColor(Color.WHITE);
+			d2.setFont(new Font("Monospaced", Font.BOLD, 12));
+			d2.drawString(String.valueOf(i + 1), sx + 4, y + 14);
 		}
+	}
+
+	private void desenhaDicaInteracao(Graphics2D d2, int cx, int cy, String texto, boolean liberado) {
+		d2.setFont(new Font("Monospaced", Font.BOLD, 14));
+		FontMetrics fm = d2.getFontMetrics();
+		int w = fm.stringWidth(texto);
+		d2.setColor(new Color(0, 0, 0, 180));
+		d2.fillRoundRect(cx - w/2 - 8, cy - 16, w + 16, 22, 8, 8);
+		d2.setColor(liberado ? new Color(255, 220, 80) : new Color(220, 80, 80));
+		d2.drawString(texto, cx - w/2, cy);
 	}
 
 	private void desenhaGameOver(Graphics2D d2) {

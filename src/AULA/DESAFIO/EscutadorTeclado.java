@@ -7,6 +7,10 @@ public class EscutadorTeclado implements KeyListener{
 	public boolean movePraBaixo, movePraCima, movePraEsq, movePraDir;
 	public boolean atiraCima, atiraBaixo, atiraEsq, atiraDir;
 	public boolean reiniciar;
+	public boolean espaco;
+	public boolean espacoConsumido;
+	public boolean trocaPraPistola;
+	public boolean trocaPraShotgun;
 
 	@Override
 	public void keyTyped(KeyEvent e) {
@@ -43,6 +47,16 @@ public class EscutadorTeclado implements KeyListener{
 			break;
 		case KeyEvent.VK_R:
 			this.reiniciar = true;
+			break;
+		case KeyEvent.VK_SPACE:
+			if (!this.espaco) this.espacoConsumido = false;
+			this.espaco = true;
+			break;
+		case KeyEvent.VK_1:
+			this.trocaPraPistola = true;
+			break;
+		case KeyEvent.VK_2:
+			this.trocaPraShotgun = true;
 			break;
 		case KeyEvent.VK_ESCAPE:
 			System.exit(0);
@@ -81,6 +95,10 @@ public class EscutadorTeclado implements KeyListener{
 			break;
 		case KeyEvent.VK_R:
 			this.reiniciar = false;
+			break;
+		case KeyEvent.VK_SPACE:
+			this.espaco = false;
+			this.espacoConsumido = false;
 			break;
 		default:
 			break;

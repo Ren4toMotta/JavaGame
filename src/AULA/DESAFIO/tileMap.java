@@ -10,6 +10,8 @@ public class tileMap {
 	int [][] cenarioValido;
 	private String cenaValida;
 	private Map<String, ArrayList<Zumbi>> zumbisPorCena;
+	private Map<String, ArrayList<Dinheiro>> moedasPorCena;
+	public NPC npcTD;
 	int [][] cenarioTopEsq	={	{6,6,6,6,6,6,6,6,6,6,6,6,6,6,6,6},// cenario 1
 								{3,1,1,1,1,1,1,1,1,1,1,1,9,1,1,0},
 								{3,1,1,1,1,1,1,1,1,0,1,1,1,1,1,0},
@@ -86,17 +88,41 @@ public class tileMap {
 		this.setCenaValida("TE");
 		this.pecaDoCenario = new Tiles();
 		this.resetarZumbis();
+		// posicionado no canto inf-direito do TD (col~9, lin~5)
+		this.npcTD = new NPC(9 * 48 + 4, 5 * 48 - 16);
+	}
+
+	public int totalZumbisVivos() {
+		int total = 0;
+		for (ArrayList<Zumbi> lista : zumbisPorCena.values()) {
+			for (Zumbi z : lista) if (z.vivo) total++;
+		}
+		return total;
+	}
+
+	public int zumbisVivosNa(String chave) {
+		ArrayList<Zumbi> lista = zumbisPorCena.get(chave);
+		if (lista == null) return 0;
+		int total = 0;
+		for (Zumbi z : lista) if (z.vivo) total++;
+		return total;
 	}
 
 	public void resetarZumbis() {
 		this.zumbisPorCena = new HashMap<>();
+		this.moedasPorCena = new HashMap<>();
 		for (String chave : new String[]{"TE", "MC", "TD", "BD", "MB", "BE"}) {
 			this.zumbisPorCena.put(chave, SpawnZumbis.criaZumbisDaCena(chave));
+			this.moedasPorCena.put(chave, new ArrayList<>());
 		}
 	}
 
 	public ArrayList<Zumbi> getZumbisAtuais() {
 		return this.zumbisPorCena.get(this.cenaValida);
+	}
+
+	public ArrayList<Dinheiro> getMoedasAtuais() {
+		return this.moedasPorCena.get(this.cenaValida);
 	}
 	
 	public void desenhar(Graphics2D d2) {

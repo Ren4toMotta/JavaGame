@@ -104,7 +104,12 @@ public class Zumbi {
 	public void recebeDano() {
 		this.vida--;
 		this.tempoDano = DURACAO_DANO;
-		if (this.vida <= 0) this.vivo = false;
+		if (this.vida <= 0) {
+			this.vivo = false;
+			Som.tocarMorte();
+		} else {
+			Som.tocarHit();
+		}
 	}
 
 	public void desenhar(Graphics2D d2) {
