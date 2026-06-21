@@ -23,6 +23,7 @@ public class Painel extends JPanel{
 	tileMap cenario;
 	ArrayList<Tiro> tiros = new ArrayList<>();
 	boolean gameOver = false;
+	boolean venceu = false;
 	Introducao intro = new Introducao();
 	Dialogo dialogo = new Dialogo();
 	private Painel painelCentro;
@@ -94,6 +95,7 @@ public class Painel extends JPanel{
 			}
 			if (dialogo.estaAberto()) dialogo.desenharComJogador(D2, getWidth(), getHeight(), Jogador);
 			if (gameOver) desenhaGameOver(D2);
+			if (venceu) desenhaConcluido(D2);
 		}
 		else if(this.Posicao.equals("Sul") && painelCentro != null) {
 			D2.setRenderingHint(RenderingHints.KEY_INTERPOLATION,
@@ -194,5 +196,60 @@ public class Painel extends JPanel{
 		fm = d2.getFontMetrics();
 		x = (getWidth() - fm.stringWidth(linha2)) / 2;
 		d2.drawString(linha2, x, y + 50);
+	}
+
+	private void desenhaConcluido(Graphics2D d2) {
+		int w = getWidth(), h = getHeight();
+		// fundo escurecido
+		d2.setComposite(AlphaComposite.getInstance(AlphaComposite.SRC_OVER, 0.72f));
+		d2.setColor(new Color(8, 20, 8));
+		d2.fillRect(0, 0, w, h);
+		d2.setComposite(AlphaComposite.getInstance(AlphaComposite.SRC_OVER, 1.0f));
+
+		int cx = w / 2;
+		int yTitulo = h / 2 - 40;
+
+		// raios comemorativos atras do titulo
+		d2.setColor(new Color(255, 215, 60, 35));
+		for (int i = 0; i < 12; i++) {
+			double ang = Math.PI * 2 * i / 12;
+			int x2 = cx + (int) (Math.cos(ang) * w);
+			int y2 = yTitulo + (int) (Math.sin(ang) * w);
+			d2.setStroke(new BasicStroke(18));
+			d2.drawLine(cx, yTitulo, x2, y2);
+		}
+		d2.setStroke(new BasicStroke(1));
+
+		// titulo principal com "sombra" dourada
+		String titulo = "VOCE VENCEU!";
+		d2.setFont(new Font("Arial", Font.BOLD, 70));
+		FontMetrics fm = d2.getFontMetrics();
+		int xt = (w - fm.stringWidth(titulo)) / 2;
+		d2.setColor(new Color(120, 80, 0));
+		d2.drawString(titulo, xt + 4, yTitulo + 4);
+		d2.setColor(new Color(255, 210, 50));
+		d2.drawString(titulo, xt, yTitulo);
+
+		// subtitulo positivo
+		d2.setColor(new Color(150, 240, 150));
+		d2.setFont(new Font("Arial", Font.BOLD, 26));
+		String sub = "Voce sobreviveu ao apocalipse e reuniu todas as chaves!";
+		fm = d2.getFontMetrics();
+		d2.drawString(sub, (w - fm.stringWidth(sub)) / 2, yTitulo + 46);
+
+		// estatisticas da partida
+		d2.setColor(Color.WHITE);
+		d2.setFont(new Font("Monospaced", Font.BOLD, 20));
+		String stats = "Chaves: " + Jogador.Inv.getChavesColetadas()
+				+ "   Dinheiro: $ " + Jogador.Inv.getDinheiro();
+		fm = d2.getFontMetrics();
+		d2.drawString(stats, (w - fm.stringWidth(stats)) / 2, yTitulo + 88);
+
+		// chamada para reiniciar
+		d2.setColor(new Color(230, 230, 230));
+		d2.setFont(new Font("Arial", Font.PLAIN, 20));
+		String rein = "Pressione R para jogar de novo";
+		fm = d2.getFontMetrics();
+		d2.drawString(rein, (w - fm.stringWidth(rein)) / 2, yTitulo + 128);
 	}
 }

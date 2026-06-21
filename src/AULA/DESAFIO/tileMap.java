@@ -12,6 +12,8 @@ public class tileMap {
 	private Map<String, ArrayList<Zumbi>> zumbisPorCena;
 	private Map<String, ArrayList<Dinheiro>> moedasPorCena;
 	public NPC npcTD;
+	private int totalChaves;
+	private int[][][] mapasIniciais;
 	int [][] cenarioTopEsq	={	{6,6,6,6,6,6,6,6,6,6,6,6,6,6,6,6},// cenario 1
 								{3,1,1,1,1,1,1,1,1,1,1,1,9,1,1,0},
 								{3,1,1,1,1,1,1,1,1,0,1,1,1,1,1,0},
@@ -90,6 +92,44 @@ public class tileMap {
 		this.resetarZumbis();
 		// posicionado no canto inf-direito do TD (col~9, lin~5)
 		this.npcTD = new NPC(9 * 48 + 4, 5 * 48 - 16);
+		// guarda copia pristina dos mapas (pra restaurar chaves/portas ao reiniciar)
+		this.mapasIniciais = clonarMapas();
+		this.totalChaves = contarChaves();
+	}
+
+	private int[][][] mapas() {
+		return new int[][][]{ cenarioTopEsq, cenarioMeioCima, cenarioTopoDir,
+				cenarioBasDir, cenarioMeioBaixo, cenarioBasEsq };
+	}
+
+	private int[][][] clonarMapas() {
+		int[][][] orig = mapas();
+		int[][][] copia = new int[orig.length][][];
+		for (int i = 0; i < orig.length; i++) {
+			copia[i] = new int[orig[i].length][];
+			for (int l = 0; l < orig[i].length; l++) copia[i][l] = orig[i][l].clone();
+		}
+		return copia;
+	}
+
+	// restaura chaves coletadas e portas abertas ao estado inicial (usado no restart)
+	public void restaurarMapas() {
+		int[][][] atual = mapas();
+		for (int i = 0; i < atual.length; i++)
+			for (int l = 0; l < atual[i].length; l++)
+				System.arraycopy(mapasIniciais[i][l], 0, atual[i][l], 0, atual[i][l].length);
+	}
+
+	private int contarChaves() {
+		int n = 0;
+		for (int[][] cena : mapasIniciais)
+			for (int[] linha : cena)
+				for (int v : linha) if (v == 4) n++;
+		return n;
+	}
+
+	public int getTotalChaves() {
+		return totalChaves;
 	}
 
 	public int totalZumbisVivos() {
