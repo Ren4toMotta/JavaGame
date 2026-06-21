@@ -196,7 +196,7 @@ public class GameLoop extends Thread implements Runnable, ActionListener{
 		synchronized (zumbis) {
 			for (int i = 0; i < zumbis.size(); i++) {
 				Zumbi z = zumbis.get(i);
-				z.atualizar(CenaDoJogo.Jogador, CenaDoJogo.cenario);
+				z.atualizar(CenaDoJogo.Jogador, CenaDoJogo.cenario, zumbis);
 				if (z.vivo && z.areaColisao.intersects(CenaDoJogo.Jogador.AreaColisao)) {
 					CenaDoJogo.Jogador.recebeDano(1);
 				}

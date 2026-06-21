@@ -28,6 +28,7 @@ public class Painel extends JPanel{
 	private Painel painelCentro;
 	private Image imgHealth, imgHealthPart;
 	private Image imgGunSlot, imgEmptySlot, imgShotgunSlot;
+	private Image imgKey;
 
 	public Painel(String Posicao) {
 		this.Posicao = Posicao;
@@ -50,6 +51,7 @@ public class Painel extends JPanel{
 			this.imgGunSlot = new ImageIcon("res/UI/GUN_SLOT.png").getImage();
 			this.imgEmptySlot = new ImageIcon("res/UI/EMPTY_SLOT.png").getImage();
 			this.imgShotgunSlot = new ImageIcon("res/UI/SHOTGUN_SLOT.png").getImage();
+			this.imgKey = new ImageIcon("res/PLAYERS/key.png").getImage();
 		}
 	}
 	public Painel(String Posicao, Painel centro) {
@@ -106,11 +108,17 @@ public class Painel extends JPanel{
 	private void desenhaHUDEsquerda(Graphics2D d2, Player p) {
 		int margem = 24;
 
-		d2.setColor(Color.WHITE);
 		d2.setFont(new Font("Monospaced", Font.BOLD, 18));
-		d2.drawString("CHAVES: " + p.Inv.getQtdChaves(), margem, 26);
+		// chave 12x4 -> 36x12 (escala 3x, mantem aspect ratio)
+		int largKey = 36, altKey = 12;
+		int yKey = 18;
+		if (imgKey != null) {
+			d2.drawImage(imgKey, margem, yKey, largKey, altKey, null);
+		}
+		d2.setColor(Color.WHITE);
+		d2.drawString("x " + p.Inv.getQtdChaves(), margem + largKey + 8, yKey + 12);
 		d2.setColor(new Color(120, 220, 120));
-		d2.drawString("$ " + p.Inv.getDinheiro(), margem, 50);
+		d2.drawString("$ " + p.Inv.getDinheiro(), margem, 56);
 		d2.setColor(Color.WHITE);
 
 		// HEALTH sprite (40x6 -> 120x18, escala 3x)

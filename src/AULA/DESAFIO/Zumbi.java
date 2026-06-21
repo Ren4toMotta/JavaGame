@@ -60,7 +60,7 @@ public class Zumbi {
 		spritesCarregados = true;
 	}
 
-	public void atualizar(Player p, tileMap cena) {
+	public void atualizar(Player p, tileMap cena, java.util.ArrayList<Zumbi> outros) {
 		if (!vivo) return;
 
 		int alvoX = p.getCentroX() - LARG / 2;
@@ -71,14 +71,14 @@ public class Zumbi {
 		if (dx != 0) {
 			int novoX = posX + dx * PASSO;
 			Rectangle teste = new Rectangle(novoX, posY, LARG, ALTU);
-			if (!VerificadorDeColisao.colideComTileEm(teste, cena)) {
+			if (!VerificadorDeColisao.colideComTileEm(teste, cena) && !colideComOutroZumbi(teste, outros)) {
 				posX = novoX;
 			}
 		}
 		if (dy != 0) {
 			int novoY = posY + dy * PASSO;
 			Rectangle teste = new Rectangle(posX, novoY, LARG, ALTU);
-			if (!VerificadorDeColisao.colideComTileEm(teste, cena)) {
+			if (!VerificadorDeColisao.colideComTileEm(teste, cena) && !colideComOutroZumbi(teste, outros)) {
 				posY = novoY;
 			}
 		}
@@ -99,6 +99,16 @@ public class Zumbi {
 			contadorFrame = 0;
 		}
 		if (tempoDano > 0) tempoDano--;
+	}
+
+	private boolean colideComOutroZumbi(Rectangle teste, java.util.ArrayList<Zumbi> outros) {
+		if (outros == null) return false;
+		for (int i = 0; i < outros.size(); i++) {
+			Zumbi z = outros.get(i);
+			if (z == this || !z.vivo) continue;
+			if (teste.intersects(z.areaColisao)) return true;
+		}
+		return false;
 	}
 
 	public void recebeDano() {

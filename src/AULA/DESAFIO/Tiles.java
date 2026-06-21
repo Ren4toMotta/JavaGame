@@ -12,12 +12,14 @@ public class Tiles {
 	private Image imgGrass, imgSand, imgWall, imgWall2;
 	private Image imgWhite, imgGray;
 	private Image imgCarDestroyed, imgCarGray, imgCarOrange;
+	private Image imgKey;
 	private Image[] imgWater = new Image[3];
 	private int frameAgua = 0;
     private int contadorAgua = 0;
     private final int VELOCIDADE_AGUA = 35;
 	private boolean colisao;
 	private boolean ehCarro;
+	private boolean ehChave;
 
 	
 	public Tiles() {
@@ -27,8 +29,8 @@ public class Tiles {
 	public void desenhaTile(Graphics2D d2, int linha, int coluna) {
 		this.posX = coluna * this.largura;
 		this.posY = linha * this.altura;
-		if (this.ehCarro) {
-			// na primeira passada do tileMap so desenha o chao; carros sao desenhados depois
+		if (this.ehCarro || this.ehChave) {
+			// passada 1: so o chao; carros e chaves sao desenhados em passada posterior
 			d2.drawImage(this.imgSand, this.posX, this.posY, this.largura, this.altura, null);
 		} else {
 			d2.drawImage(this.imgAtual, this.posX, this.posY, this.largura, this.altura, null);
@@ -74,6 +76,15 @@ public class Tiles {
 		this.imgCarDestroyed = new ImageIcon("res/TERRAIN/BROKEN_CARS/DESTROYED_CAR.png").getImage();
 		this.imgCarGray      = new ImageIcon("res/TERRAIN/BROKEN_CARS/GRAY_CAR.png").getImage();
 		this.imgCarOrange    = new ImageIcon("res/TERRAIN/BROKEN_CARS/ORANGE_CAR.png").getImage();
+		this.imgKey          = new ImageIcon("res/PLAYERS/key.png").getImage();
+	}
+
+	public void desenhaChave(Graphics2D d2, int linha, int coluna) {
+		// 12x4 -> 36x12 (escala 3x), centralizado no tile
+		int largChave = 36, altChave = 12;
+		int cx = coluna * this.largura + this.largura / 2;
+		int cy = linha * this.altura + this.altura / 2;
+		d2.drawImage(this.imgKey, cx - largChave / 2, cy - altChave / 2, largChave, altChave, null);
 	}
 	
 	public void atualizaAnimacaoAgua() {
@@ -88,6 +99,7 @@ public class Tiles {
 	
 	public void carregaPecaDaMatriz(int valorDaPeca) {
 		this.ehCarro = false;
+		this.ehChave = false;
 		if (valorDaPeca == 0) {
 			this.imgAtual = this.imgWall;
 			this.colisao = true;
@@ -105,8 +117,9 @@ public class Tiles {
 			this.colisao = false;
 		}
 		if (valorDaPeca == 4) {
-			this.imgAtual = this.imgWhite;
+			this.imgAtual = this.imgSand;
 			this.colisao = false;
+			this.ehChave = true;
 		}
 		if (valorDaPeca == 5) {
 			this.imgAtual = this.imgGray;

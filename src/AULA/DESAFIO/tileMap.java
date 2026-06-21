@@ -144,6 +144,14 @@ public class tileMap {
 				}
 			}
 		}
+		// passada 3: chaves
+		for (int lin = 0; lin < this.cenarioValido.length; lin++) {
+			for (int col = 0; col < this.cenarioValido[0].length; col++) {
+				if (this.cenarioValido[lin][col] == 4) {
+					this.pecaDoCenario.desenhaChave(d2, lin, col);
+				}
+			}
+		}
 	}
 	public String getCenaValida() {
 		return cenaValida;
