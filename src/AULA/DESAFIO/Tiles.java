@@ -18,6 +18,7 @@ public class Tiles {
     private final int VELOCIDADE_AGUA = 35;
 	private boolean colisao;
 	private boolean ehCarro;
+	private boolean ehItem;
 
 	
 	public Tiles() {
@@ -30,6 +31,10 @@ public class Tiles {
 		if (this.ehCarro) {
 			// na primeira passada do tileMap so desenha o chao; carros sao desenhados depois
 			d2.drawImage(this.imgSand, this.posX, this.posY, this.largura, this.altura, null);
+		} else if (this.ehItem) {
+			// item (chave) tem fundo transparente: desenha o asfalto e o item por cima
+			d2.drawImage(this.imgSand, this.posX, this.posY, this.largura, this.altura, null);
+			d2.drawImage(this.imgAtual, this.posX, this.posY, this.largura, this.altura, null);
 		} else {
 			d2.drawImage(this.imgAtual, this.posX, this.posY, this.largura, this.altura, null);
 		}
@@ -52,23 +57,24 @@ public class Tiles {
 	
 	private void carregaImagemTile() {
 		ImageIcon icon;
-		icon = new ImageIcon("res/TILES/grass1.png");
+		// Re-skin com o Zombie Apocalypse Tileset (mesma logica de colisao do original)
+		icon = new ImageIcon("res/ZOMBIE_TILESET/ground.png"); // 3 = terra
 		this.imgGrass = icon.getImage();
-		icon = new ImageIcon("res/TERRAIN/grass1.png");
+		icon = new ImageIcon("res/ZOMBIE_TILESET/road.png");   // 1 = asfalto (andavel)
 		this.imgSand = icon.getImage();
 
-		icon = new ImageIcon("res/tiles/wall1.png");
-		this.imgWall = icon.getImage();		
-		icon = new ImageIcon("res/tiles/white.png");
+		icon = new ImageIcon("res/ZOMBIE_TILESET/wall.png");   // 0 = parede
+		this.imgWall = icon.getImage();
+		icon = new ImageIcon("res/ZOMBIE_TILESET/item.png"); // 4 = item coletavel (chave)
 		this.imgWhite= icon.getImage();
-		icon = new ImageIcon("res/tiles/gray.png");
-		this.imgGray = icon.getImage();	
-		icon = new ImageIcon("res/TERRAIN/wall2.png");
+		icon = new ImageIcon("res/ZOMBIE_TILESET/door.png"); // 5 = porta
+		this.imgGray = icon.getImage();
+		icon = new ImageIcon("res/ZOMBIE_TILESET/tree.png");   // 6 = arvore (borda)
 		this.imgWall2 = icon.getImage();
-		
+
 		for(int i = 0; i < 3; i++) {
 			this.imgWater[i] = new ImageIcon
-			("res/TERRAIN/water"+(i+1)+".png").getImage();
+			("res/ZOMBIE_TILESET/water"+(i+1)+".png").getImage();
 		}
 
 		this.imgCarDestroyed = new ImageIcon("res/TERRAIN/BROKEN_CARS/DESTROYED_CAR.png").getImage();
@@ -88,6 +94,7 @@ public class Tiles {
 	
 	public void carregaPecaDaMatriz(int valorDaPeca) {
 		this.ehCarro = false;
+		this.ehItem = false;
 		if (valorDaPeca == 0) {
 			this.imgAtual = this.imgWall;
 			this.colisao = true;
@@ -107,10 +114,12 @@ public class Tiles {
 		if (valorDaPeca == 4) {
 			this.imgAtual = this.imgWhite;
 			this.colisao = false;
+			this.ehItem = true;
 		}
 		if (valorDaPeca == 5) {
 			this.imgAtual = this.imgGray;
 			this.colisao = true;
+			this.ehItem = true; // barricada com fundo transparente: desenha sobre o asfalto
 		}
 		if(valorDaPeca == 6) {
 			this.imgAtual = this.imgWall2;
