@@ -26,6 +26,8 @@ public class Player{
 	public int vida = VIDA_MAX;
 	public int tempoInvuln = 0;
 	public static final int DURACAO_INVULN = 30;
+	public boolean temShotgun = false;
+	public int armaAtual = 0; // 0 = pistola, 1 = shotgun
 
 	public Player() {
 		this.posX = 200;
@@ -164,6 +166,8 @@ public class Player{
 		this.AreaColisao.y = this.posY + this.Altu/2;
 		this.vida = VIDA_MAX;
 		this.tempoInvuln = 0;
+		this.temShotgun = false;
+		this.armaAtual = 0;
 		this.Inv = new Inventario();
 	}
 }
