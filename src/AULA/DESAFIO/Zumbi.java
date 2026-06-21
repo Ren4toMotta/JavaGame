@@ -11,6 +11,7 @@ public class Zumbi {
 	public static final int LARG = 40, ALTU = 40;
 	public static final int VIDA_INICIAL = 2;
 	public static final int PASSO = 2;
+	private int tickMov = 0; // usado para deixar o zumbi um pouco mais lento
 	private static final int TICKS_POR_FRAME = 10;
 	private static final int DURACAO_DANO = 15;
 
@@ -62,6 +63,7 @@ public class Zumbi {
 
 	public void atualizar(Player p, tileMap cena) {
 		if (!vivo) return;
+		if (++tickMov % 4 == 0) return; // pula 1 a cada 4 frames -> ~25% mais lento
 
 		int alvoX = p.getCentroX() - LARG / 2;
 		int alvoY = p.getCentroY() - ALTU / 2;
