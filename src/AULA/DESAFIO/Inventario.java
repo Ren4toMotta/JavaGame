@@ -2,16 +2,23 @@ package AULA.DESAFIO;
 
 public class Inventario {
 	private int quantidadeChaves;
+	private int chavesColetadas; // total cumulativo coletado (nao diminui ao usar)
 	private int dinheiro;
 
 	public Inventario() {
 		this.quantidadeChaves = 0;
+		this.chavesColetadas = 0;
 		this.dinheiro = 0;
 	}
 
 	public void adicionarChaves() {
 		this.quantidadeChaves++;
+		this.chavesColetadas++;
 		System.out.println("Chave Coletada! Total: "+this.quantidadeChaves);
+	}
+
+	public int getChavesColetadas() {
+		return chavesColetadas;
 	}
 	public boolean usarChave() {
 		if(this.quantidadeChaves >0) {

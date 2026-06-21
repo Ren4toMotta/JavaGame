@@ -66,7 +66,7 @@ public class GameLoop extends Thread implements Runnable, ActionListener{
 			}
 			return;
 		}
-		if (CenaDoJogo.gameOver) {
+		if (CenaDoJogo.gameOver || CenaDoJogo.venceu) {
 			if (ET.reiniciar) reiniciar();
 			return;
 		}
@@ -232,6 +232,11 @@ public class GameLoop extends Thread implements Runnable, ActionListener{
 
 		CenaDoJogo.Jogador.tickInvuln();
 
+		// vitoria: coletou todas as chaves do mapa
+		if (CenaDoJogo.Jogador.Inv.getChavesColetadas() >= CenaDoJogo.cenario.getTotalChaves()) {
+			CenaDoJogo.venceu = true;
+		}
+
 		if (!CenaDoJogo.Jogador.estaVivo()) {
 			CenaDoJogo.gameOver = true;
 		}
@@ -239,6 +244,7 @@ public class GameLoop extends Thread implements Runnable, ActionListener{
 
 	private void reiniciar() {
 		CenaDoJogo.Jogador.resetar();
+		CenaDoJogo.cenario.restaurarMapas(); // repoe chaves coletadas e portas abertas
 		CenaDoJogo.cenario.setCenaValida("TE");
 		CenaDoJogo.cenario.resetarZumbis();
 		synchronized (CenaDoJogo.tiros) {
@@ -247,6 +253,7 @@ public class GameLoop extends Thread implements Runnable, ActionListener{
 		desdeUltimoTiro = 0;
 		cenaAnterior = "TE";
 		CenaDoJogo.gameOver = false;
+		CenaDoJogo.venceu = false;
 		ET.reiniciar = false;
 	}
 
