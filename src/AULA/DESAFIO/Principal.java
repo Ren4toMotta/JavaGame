@@ -1,16 +1,16 @@
 package AULA.DESAFIO;
 /*
- * CAP10 -	GAMES2D EM JAVA
- * 			CAP12 - MONTANDO O TABUTEILRO
- * AUTOR: 	LUIZ CORCINI
- * DATA: 	dd/mm/aaaa
+ * 					GAME2D EM JAVA
+ * AUTORES: RENATO DA MOTTA, KENDY VALENTE E GUSTAVO GABRIEL
+ * DATA: 	19/06/2026
  */
 public class Principal {
 
 	public static void main(String[] args) {
-		System.out.println("Cap12 - TABULEIRO");
+		System.out.println("Sobreviva ao Apocalipse");
 		new Moldura();
 
 	}
 
 }
+ 
