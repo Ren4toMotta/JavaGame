@@ -20,7 +20,7 @@ public class Introducao {
 			"Voce e o ultimo sobrevivente.\n" +
 			"Empunhe sua arma e nao desista.\n" +
 			"\n" +
-			"OBJETIVO: derrotar todos os zumbis.\n" +
+			"OBJETIVO: derrotar todos os zumbis e encontrar todos os dispositivos." +
 			"\n" +
 			"Boa sorte.";
 
@@ -77,7 +77,7 @@ public class Introducao {
 
 	private void desenhaCaixaTexto(Graphics2D d2, int largura, int altura) {
 		int caixaX = 300;
-		int caixaY = 70;
+		int caixaY =80;
 		int caixaW = largura - caixaX - 50;
 		int caixaH = altura - 160;
 

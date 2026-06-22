@@ -65,16 +65,16 @@ public class Tiles {
 
 		icon = new ImageIcon("res/ZOMBIE_TILESET/wall.png");   // 0 = parede
 		this.imgWall = icon.getImage();
-		icon = new ImageIcon("res/ZOMBIE_TILESET/item.png"); // 4 = item coletavel (chave)
+		icon = new ImageIcon("res/ZOMBIE_TILESET/item2.png"); // 4 = item coletavel (chave)
 		this.imgWhite= icon.getImage();
 		icon = new ImageIcon("res/ZOMBIE_TILESET/door.png"); // 5 = porta
 		this.imgGray = icon.getImage();
-		icon = new ImageIcon("res/ZOMBIE_TILESET/tree.png");   // 6 = arvore (borda)
+		icon = new ImageIcon("res/TERRAIN/wall2.png");   // 6 = arvore (borda)
 		this.imgWall2 = icon.getImage();
 
 		for(int i = 0; i < 3; i++) {
 			this.imgWater[i] = new ImageIcon
-			("res/ZOMBIE_TILESET/water"+(i+1)+".png").getImage();
+			("res/TERRAIN/water"+(i+1)+".png").getImage();
 		}
 
 		this.imgCarDestroyed = new ImageIcon("res/TERRAIN/BROKEN_CARS/DESTROYED_CAR.png").getImage();

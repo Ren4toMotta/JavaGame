@@ -11,9 +11,9 @@ public class Dialogo {
 
 	private static final String[] FALAS = {
 		"Tempos dificeis, soldado...",
-		"Os mortos andam, o ceu nao tem mais cor.",
-		"Sobrou pouca gente honesta. Eu vendo,",
-		"voce escolhe. Que tal dar uma olhada?"
+		"Os mortos andam, o ceu não tem mais cor....",
+		"Sobrou pouca gente honesta. Entende?",
+		"Emfim voce decide. Quer dar uma olhada ou o que?"
 	};
 
 	private static final String[] OPCOES = {
@@ -105,7 +105,7 @@ public class Dialogo {
 			mostrarMsg("Dinheiro insuficiente. Precisa de $" + CUSTO_SHOTGUN + ".");
 		} else {
 			p.temShotgun = true;
-			mostrarMsg("Shotgun adquirida. Boa caca.");
+			mostrarMsg("Shotgun adquirida. Boa caça.");
 		}
 	}
 

@@ -19,7 +19,8 @@ public class Player{
 	public int passo = 5;
 	private boolean olhandoEsquerda = false;
 	private String direcaoAtual = "down";
-	private Image imgGun;
+	private Image imgPistola;
+	private Image imgShotgun;
 	public Inventario Inv = new Inventario();
 
 	public static final int VIDA_MAX = 5;
@@ -46,7 +47,8 @@ public class Player{
 			this.imgPlayerUp[i] = new ImageIcon("res/PCAF/up" + (i+1) + ".png").getImage();
 		}
 		this.imagemPlayer = this.imgPlayerDown[this.frameJogador];
-		this.imgGun = new ImageIcon("res/PLAYERS/GUN.png").getImage();
+		this.imgPistola = new ImageIcon("res/PLAYERS/GUN.png").getImage();
+		this.imgShotgun = new ImageIcon("res/PLAYERS/SHOTGUN.png").getImage();
 	}
 
 	public void desenhaJogador(Graphics2D d2) {
@@ -61,8 +63,13 @@ public class Player{
 	}
 
 	private void desenhaArma(Graphics2D d2) {
-		if (imgGun == null) return;
-		int largArma = 24, altArma = 15;
+		boolean shotgun = (armaAtual == 1 && temShotgun);
+		Image imgArma = shotgun ? imgShotgun : imgPistola;
+		if(imgArma == null) return;
+		
+		int largArma = shotgun ? 45 : 22;
+		int altArma = shotgun ? 17 : 15;
+		
 		double pivotX, pivotY, angulo;
 		boolean espelharH = false;
 		switch (direcaoAtual) {
@@ -88,7 +95,7 @@ public class Player{
 		if (espelharH) tx.scale(-1, 1);
 		tx.translate(-largArma / 2.0, -altArma / 2.0);
 		d2.setTransform(tx);
-		d2.drawImage(imgGun, 0, 0, largArma, altArma, null);
+		d2.drawImage(imgArma, 0, 0, largArma, altArma, null);
 		d2.setTransform(original);
 	}
 

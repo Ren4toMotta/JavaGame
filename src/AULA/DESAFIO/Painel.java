@@ -110,7 +110,7 @@ public class Painel extends JPanel{
 
 		d2.setColor(Color.WHITE);
 		d2.setFont(new Font("Monospaced", Font.BOLD, 18));
-		d2.drawString("CHAVES: " + p.Inv.getQtdChaves(), margem, 26);
+		d2.drawString("DISPOSITIVOS: " + p.Inv.getQtdChaves(), margem, 26);
 		d2.setColor(new Color(120, 220, 120));
 		d2.drawString("$ " + p.Inv.getDinheiro(), margem, 50);
 		d2.setColor(Color.WHITE);
@@ -233,14 +233,14 @@ public class Painel extends JPanel{
 		// subtitulo positivo
 		d2.setColor(new Color(150, 240, 150));
 		d2.setFont(new Font("Arial", Font.BOLD, 26));
-		String sub = "Voce sobreviveu ao apocalipse e reuniu todas as chaves!";
+		String sub = "Voce sobreviveu ao apocalipse e reuniu todos os dispositivos!";
 		fm = d2.getFontMetrics();
 		d2.drawString(sub, (w - fm.stringWidth(sub)) / 2, yTitulo + 46);
 
 		// estatisticas da partida
 		d2.setColor(Color.WHITE);
 		d2.setFont(new Font("Monospaced", Font.BOLD, 20));
-		String stats = "Chaves: " + Jogador.Inv.getChavesColetadas()
+		String stats = "Dispositivos: " + Jogador.Inv.getChavesColetadas()
 				+ "   Dinheiro: $ " + Jogador.Inv.getDinheiro();
 		fm = d2.getFontMetrics();
 		d2.drawString(stats, (w - fm.stringWidth(stats)) / 2, yTitulo + 88);

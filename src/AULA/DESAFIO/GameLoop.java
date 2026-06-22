@@ -232,8 +232,9 @@ public class GameLoop extends Thread implements Runnable, ActionListener{
 
 		CenaDoJogo.Jogador.tickInvuln();
 
-		// vitoria: coletou todas as chaves do mapa
-		if (CenaDoJogo.Jogador.Inv.getChavesColetadas() >= CenaDoJogo.cenario.getTotalChaves()) {
+		// vitoria: coletou todas as chaves do mapa e matou todos os zumbis
+		if (CenaDoJogo.Jogador.Inv.getChavesColetadas() >= CenaDoJogo.cenario.getTotalChaves() 
+			&& CenaDoJogo.cenario.totalZumbisVivos() == 0) {
 			CenaDoJogo.venceu = true;
 		}
 
